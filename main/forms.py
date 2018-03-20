@@ -17,4 +17,4 @@ class InvoiceForm(Form):
                           validators=[DataRequired()])
 
     description = TextAreaField('Description',
-                              validators=[Length(max=5000)])
+                                validators=[Length(max=5000)])
