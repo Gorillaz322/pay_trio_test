@@ -3,31 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Invoice</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
     <form id="invoice_form" method="POST">
         <div class="card-content grey-text text-darken-1">
-            <span class="card-title">Invoice Form</span>
+            <h2 class="card-title">Invoice Form</h2>
             {{ form.csrf_token }}
             <div class="input-field">
-                {{ form.amount(id="amount") }}
-                <label for="amount">Enter amount you want to send</label>
-                <div id="error_amount" class="error"></div>
+                <label for="amount">Enter amount you want to send</label><br>
+                {{ form.amount(id="amount", placeholder="Amount") }}
             </div>
             <div class="input-field">
-                {{ form.currency(id="currency") }}
                 <label for="currency">Select currency</label>
-                <div id="error_currency" class="error"></div>
+                {{ form.currency(id="currency") }}
             </div>
             <div class="input-field">
-                {{ form.description(id="description") }}
-                <label for="description">Enter description for you invoice</label>
-                <div id="error_description" class="error"></div>
+                <label for="description">Enter description for you invoice</label><br>
+                {{ form.description(id="description", placeholder="Description") }}
             </div>
         </div>
         <div class="card-action">
             <input type="submit">
         </div>
+        <br>
+        {% if errors %}
+            {% for field, message in errors.items() %}
+                <p style="color: red">{{ field }}: {{ message }}</p>
+            {% endfor %}
+        {% endif %}
     </form>
 </form>
 </body>

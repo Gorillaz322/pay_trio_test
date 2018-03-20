@@ -1,4 +1,6 @@
-from flask import jsonify, render_template, redirect
+import uuid
+
+from flask import render_template, redirect
 from flask_views.edit import FormView
 import requests
 
@@ -12,11 +14,11 @@ class InvoiceView(FormView):
     form_class = InvoiceForm
     template_name = 'InvoiceView.html'
 
+    def return_error(self, errors):
+        return render_template('InvoiceView.html', form=self.form_class(), errors=errors)
+
     def form_invalid(self, form):
-        return jsonify({
-            'status': 'error',
-            'errors': form.errors
-        })
+        return self.return_error({key: value[0] for key, value in form.errors.items()})
 
     def form_valid(self, form):
         if form.currency.data == "usd":
@@ -29,21 +31,21 @@ class InvoiceView(FormView):
             amount=form.amount.data,
             currency=CURRENCY_CODES[form.currency.data],
             shop_id=settings.SHOP_ID,
-            shop_invoice_id=1
+            shop_invoice_id=uuid.uuid4()
         )
 
         data.update(dict(
             sign=get_hash(**data),
             description=form.description.data))
 
-        return render_template('InvoiceConfirmationView.html', **data)
+        return render_template('InvoiceConfirmationView.html', **data, currency_text=form.currency.data)
 
     def create_invoice_via_api(self, form):
         data = dict(
             amount=form.amount.data,
             currency=CURRENCY_CODES[form.currency.data],
             shop_id=settings.SHOP_ID,
-            shop_invoice_id=2,
+            shop_invoice_id=uuid.uuid4(),
             payway='payeer_eur'
         )
 
@@ -55,6 +57,8 @@ class InvoiceView(FormView):
 
         if response.status_code == 200:
             return redirect(response.json()['data']['data']['referer'])
+        else:
+            return self.return_error({"Response": response.json()['data']['message']})
 
 app.add_url_rule(
     '/',

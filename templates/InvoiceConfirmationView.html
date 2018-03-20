@@ -5,6 +5,12 @@
     <title>Confirm invoice</title>
 </head>
 <body>
+<h2>Invoice information</h2>
+<p>Amount: {{ amount }}</p>
+<p>Currency: {{ currency_text }}</p>
+{% if description %}
+    <p>Description: {{ description }}</p>
+{% endif %}
 <form name="Pay"​ ​ method="post"​ ​ action="https://tip.pay-trio.com/en/" accept-charset="UTF-8">
     <input type="hidden" name="amount" value="{{ amount }}">
     <input type="hidden"​ ​ name="currency"​ ​ value="{{ currency }}"​>
@@ -12,7 +18,7 @@
     <input type="hidden"​ ​ name="sign"​ ​ value="{{ sign }}"​>
     <input type="hidden"​ ​ name="shop_invoice_id"​ ​ value="{{ shop_invoice_id }}"​ ​>
     <input type="hidden"​ ​ name="description"​ ​ value="{{ description }}"​ >
-    <input type="submit">
+    <input type="submit" value="Confirm invoice">
 </form>
 </body>
 </html>

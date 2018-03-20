@@ -1,6 +1,6 @@
 from flask_wtf import Form
 from wtforms import FloatField, RadioField, TextAreaField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, NumberRange
 
 
 class InvoiceForm(Form):
@@ -10,7 +10,8 @@ class InvoiceForm(Form):
     )
 
     amount = FloatField('Amount',
-                        validators=[DataRequired()])
+                        validators=[DataRequired(),
+                                    NumberRange(min=0, max=15000)])
 
     currency = RadioField('Currency',
                           choices=[*CURRENCY_TYPES],
