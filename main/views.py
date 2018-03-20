@@ -4,7 +4,7 @@ from flask import render_template, redirect
 from flask_views.edit import FormView
 import requests
 
-from app import app
+from app import app, logger
 from .forms import InvoiceForm
 from .utils import get_hash, CURRENCY_CODES
 import settings
@@ -31,12 +31,21 @@ class InvoiceView(FormView):
             amount=form.amount.data,
             currency=CURRENCY_CODES[form.currency.data],
             shop_id=settings.SHOP_ID,
-            shop_invoice_id=uuid.uuid4()
+            shop_invoice_id=str(uuid.uuid4())
         )
 
         data.update(dict(
             sign=get_hash(**data),
             description=form.description.data))
+
+        logger.info(
+            "Request | Currency: {currency} | "
+            "Amount: {amount} | ID: {id} | Description: {desc}".format(
+                currency=form.currency.data,
+                amount=data['amount'],
+                id=data['shop_invoice_id'],
+                desc=data['description'])
+        )
 
         return render_template('InvoiceConfirmationView.html', **data, currency_text=form.currency.data)
 
@@ -45,15 +54,27 @@ class InvoiceView(FormView):
             amount=form.amount.data,
             currency=CURRENCY_CODES[form.currency.data],
             shop_id=settings.SHOP_ID,
-            shop_invoice_id=uuid.uuid4(),
+            shop_invoice_id=str(uuid.uuid4()),
             payway='payeer_eur'
         )
 
-        data.update(dict(sign=get_hash(**data)))
+        data.update(dict(
+            sign=get_hash(**data),
+            description=form.description.data)
+        )
 
         response = requests.post('https://central.pay-trio.com/invoice',
                                  headers={"Content-Type": "application/json"},
                                  json=data)
+
+        logger.info(
+            "Request | Currency: {currency} | "
+            "Amount: {amount} | ID: {id} | Description: {desc}".format(
+                currency=form.currency.data,
+                amount=data['amount'],
+                id=data['shop_invoice_id'],
+                desc=data['description'])
+        )
 
         if response.status_code == 200:
             return redirect(response.json()['data']['data']['referer'])
