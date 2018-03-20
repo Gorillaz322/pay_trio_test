@@ -1,5 +1,6 @@
-from flask import jsonify, render_template
+from flask import jsonify, render_template, redirect
 from flask_views.edit import FormView
+import requests
 
 from app import app
 from .forms import InvoiceForm
@@ -19,11 +20,11 @@ class InvoiceView(FormView):
 
     def form_valid(self, form):
         if form.currency.data == "usd":
-            return self.confirm_invoice_request(form)
+            return self.create_invoice_via_tip(form)
         else:
-            return self.request_invoice()
+            return self.create_invoice_via_api(form)
 
-    def confirm_invoice_request(self, form):
+    def create_invoice_via_tip(self, form):
         data = dict(
             amount=form.amount.data,
             currency=CURRENCY_CODES[form.currency.data],
@@ -37,9 +38,23 @@ class InvoiceView(FormView):
 
         return render_template('InvoiceConfirmationView.html', **data)
 
-    def request_invoice(self):
-        pass
+    def create_invoice_via_api(self, form):
+        data = dict(
+            amount=form.amount.data,
+            currency=CURRENCY_CODES[form.currency.data],
+            shop_id=settings.SHOP_ID,
+            shop_invoice_id=2,
+            payway='payeer_eur'
+        )
 
+        data.update(dict(sign=get_hash(**data)))
+
+        response = requests.post('https://central.pay-trio.com/invoice',
+                                 headers={"Content-Type": "application/json"},
+                                 json=data)
+
+        if response.status_code == 200:
+            return redirect(response.json()['data']['data']['referer'])
 
 app.add_url_rule(
     '/',
