@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice</title>
+</head>
+<body>
+    <form id="invoice_form" method="POST">
+        <div class="card-content grey-text text-darken-1">
+            <span class="card-title">Invoice Form</span>
+            {{ form.csrf_token }}
+            <div class="input-field">
+                {{ form.amount(id="amount") }}
+                <label for="amount">Enter amount you want to send</label>
+                <div id="error_amount" class="error"></div>
+            </div>
+            <div class="input-field">
+                {{ form.currency(id="currency") }}
+                <label for="currency">Select currency</label>
+                <div id="error_currency" class="error"></div>
+            </div>
+            <div class="input-field">
+                {{ form.description(id="description") }}
+                <label for="description">Enter description for you invoice</label>
+                <div id="error_description" class="error"></div>
+            </div>
+        </div>
+        <div class="card-action">
+            <input type="submit">
+        </div>
+    </form>
+</form>
+</body>
+</html>
